@@ -1,5 +1,7 @@
+"use client";
+
 import { Button } from "@radix-ui/themes";
-import {Link} from "next/link";
+import  Link  from "next/link";
 const IssuesPage = () => {
   return (
     <div>
