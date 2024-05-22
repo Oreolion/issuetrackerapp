@@ -1,5 +1,7 @@
 "use client";
 import SimpleMDE from "react-simplemde-editor";
+import ErrorMessage from "@/components/ErrorMessage";
+import Spinner from "@/components/Spinner";
 import "easymde/dist/easymde.min.css";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
@@ -28,6 +30,7 @@ const NewIssuePage = () => {
     resolver: zodResolver(createIssueSchema),
   });
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <div className="max-w-xl">
@@ -40,10 +43,12 @@ const NewIssuePage = () => {
         className="space-y-3"
         onSubmit={handleSubmit(async (data) => {
           try {
+            setIsSubmitting(true);
             await axios.post(`/api/issues`, data);
             router.push(`/issues`);
             console.log(data);
           } catch (error) {
+            setIsSubmitting(false);
             console.error(error);
             setError("An Unexpected Error occurred");
           }
@@ -52,7 +57,7 @@ const NewIssuePage = () => {
         <TextField.Root placeholder="Title" {...register("title")}>
           <TextField.Slot></TextField.Slot>
         </TextField.Root>
-        {errors.title && <Text color="red" as="p">{errors.title.message}</Text>}
+        <ErrorMessage>{errors.title?.message}</ErrorMessage>
         <Controller
           name="description"
           control={control}
@@ -60,11 +65,12 @@ const NewIssuePage = () => {
             <SimpleMDE placeholder="Description…" {...field} />
           )}
         ></Controller>
-        {errors.description && (
-          <Text color="red" as="p">{errors.description.message}</Text>
-        )}
 
-        <Button>Submit new issue</Button>
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
+
+        <Button disabled={isSubmitting}>
+          Submit new issue {isSubmitting && <Spinner></Spinner>}
+        </Button>
       </form>
     </div>
   );
